@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rifa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--ink:#16213e;--bg:#eef2f7;--card:#fff;--yel:#ffc533;--grn:#12805c;--pen:#c77b00;--mut:#5b6785;--red:#c62f3f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,.num{font-family:'Bricolage Grotesque',Figtree,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1.05;margin:.2em 0;font-weight:800}
+h2{font-size:1.3rem;margin:1.6em 0 .5em}
+.hero{background:var(--ink);color:#fff;border-radius:18px;padding:24px;position:relative}
+.hero:before,.hero:after{content:"";position:absolute;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;background:var(--bg)}
+.hero:before{left:-10px}.hero:after{right:-10px}
+.hero p{margin:.2em 0;color:#cdd6ee}
+.price{display:inline-block;background:var(--yel);color:var(--ink);font:800 1.2rem 'Bricolage Grotesque',sans-serif;padding:4px 14px;border-radius:8px;margin-top:10px}
+.bar{height:8px;background:#ffffff26;border-radius:4px;margin-top:16px;overflow:hidden}.bar i{display:block;height:100%;background:var(--yel)}
+.win{background:var(--yel);border-radius:14px;padding:18px;margin-top:16px;text-align:center;font-weight:600}
+.win b{font:800 2rem 'Bricolage Grotesque',sans-serif;display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:8px}
+.n{border:2px dashed #b9c3d9;background:var(--card);border-radius:10px;padding:10px 0;font-size:1.1rem;font-weight:800;color:var(--ink);cursor:pointer}
+.n:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.n.sel{background:var(--ink);color:var(--yel);border:2px solid var(--ink)}
+.n.p{background:#fff3d6;border-color:var(--pen);color:var(--pen);cursor:not-allowed}
+.n.x{background:#dcf3ea;border-color:var(--grn);color:var(--grn);cursor:not-allowed}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--mut);margin:10px 0}
+.card{background:var(--card);border-radius:14px;padding:18px;margin-top:16px}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input{width:100%;padding:11px 12px;border:2px solid #cfd7e8;border-radius:10px;font:inherit;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+button.b{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:13px 18px;font:600 1rem Figtree,sans-serif;cursor:pointer;width:100%;margin-top:14px}
+button.b:disabled{opacity:.45;cursor:not-allowed}
+button.s{background:none;border:2px solid var(--ink);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 .85rem Figtree,sans-serif;cursor:pointer}
+button.s.g{border-color:var(--grn);color:var(--grn)}button.s.r{border-color:var(--red);color:var(--red)}
+.msg{color:var(--red);font-weight:600;min-height:1.4em;margin-top:8px}
+.pix{text-align:center}.pix #qr{display:inline-block;padding:10px;background:#fff;border:2px solid var(--ink);border-radius:12px}
+.pix textarea{width:100%;height:76px;font:12px monospace;border:2px solid #cfd7e8;border-radius:8px;padding:8px;margin-top:10px}
+.item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #e3e8f2;flex-wrap:wrap}
+.item .num{font-size:1.3rem;min-width:48px}.item span{flex:1;min-width:120px}
+.tag{font-size:.8rem;font-weight:600;padding:2px 8px;border-radius:6px}.tag.p{background:#fff3d6;color:var(--pen)}.tag.x{background:#dcf3ea;color:var(--grn)}
+footer{text-align:center;margin-top:36px;font-size:.85rem}footer a{color:var(--mut)}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:no-preference){.n{transition:transform .1s}.n:not(:disabled):active{transform:scale(.94)}}
+</style>
+</head>
+<body>
+<main>
+<!-- ============ PÚBLICO ============ -->
+<section id="pub">
+  <div class="hero">
+    <h1 id="t"></h1>
+    <p id="pz"></p><p id="dt"></p>
+    <span class="price" id="pr"></span>
+    <div class="bar"><i id="bar"></i></div>
+    <p id="sold" style="font-size:.9rem;margin-top:6px"></p>
+  </div>
+  <div class="win" id="win" hidden></div>
+  <h2>Escolha seus números</h2>
+  <div class="leg"><span>⬜ Livre</span><span>🟨 Aguardando pagamento</span><span>🟩 Pago</span></div>
+  <div class="grid" id="grid"></div>
+  <div class="card" id="buy">
+    <b id="sum">Nenhum número selecionado</b>
+    <label for="nm">Seu nome</label>
+    <input id="nm" autocomplete="name" maxlength="60" placeholder="Nome e sobrenome">
+    <button class="b" id="go" disabled>Gerar Pix para pagar</button>
+    <div class="msg" id="err"></div>
+  </div>
+  <div class="card pix" id="pixbox" hidden>
+    <h2 style="margin-top:0">Pague com Pix</h2>
+    <p id="pxi"></p>
+    <div id="qr"></div>
+    <textarea id="code" readonly></textarea>
+    <button class="b" id="cp">Copiar código Pix</button>
+    <p style="color:var(--mut);font-size:.9rem">Depois de pagar, o organizador confirma seu pagamento e o número fica seu. Reservas não pagas são liberadas após <span id="hold"></span> minutos.</p>
+  </div>
+</section>
+
+<!-- ============ ORGANIZADOR ============ -->
+<section id="adm" hidden>
+  <h1>Organizador</h1>
+  <div class="card" id="login">
+    <label for="us">Usuário</label><input id="us" autocomplete="username">
+    <label for="pw">Senha</label><input id="pw" type="password" autocomplete="current-password">
+    <button class="b" id="in">Entrar</button><div class="msg" id="lerr"></div>
+  </div>
+  <div id="panel" hidden>
+    <div class="card">
+      <b>Configurar rifa</b>
+      <label for="c_title">Título</label><input id="c_title">
+      <label for="c_prize">Prêmio</label><input id="c_prize">
+      <div class="row"><div><label for="c_price">Valor por número (R$)</label><input id="c_price" type="number" step="0.01" min="0.01"></div>
+      <div><label for="c_total">Quantidade de números</label><input id="c_total" type="number" min="1" max="1000"></div></div>
+      <div class="row"><div><label for="c_drawDate">Data do sorteio</label><input id="c_drawDate" placeholder="ex.: 30/11/2026"></div>
+      <div><label for="c_hold">Reserva expira em (min)</label><input id="c_hold" type="number" min="5"></div></div>
+      <label for="c_pixKey">Chave Pix (celular no formato +55DDDNÚMERO)</label><input id="c_pixKey">
+      <div class="row"><div><label for="c_pixName">Nome do recebedor</label><input id="c_pixName" maxlength="25"></div>
+      <div><label for="c_pixCity">Cidade</label><input id="c_pixCity" maxlength="15"></div></div>
+      <button class="b" id="sv">Salvar configuração</button><div class="msg" id="cmsg"></div>
+    </div>
+    <h2>Números reservados e pagos</h2>
+    <div class="card" id="list"></div>
+    <div class="card">
+      <button class="b" id="dr" style="margin-top:0">Sortear entre os números pagos</button>
+      <button class="s r" id="rs" style="margin-top:14px">Zerar rifa (apaga todos os números)</button>
+    </div>
+    <button class="s" id="out" style="margin-top:16px">Sair</button>
+  </div>
+</section>
+<footer><a href="#admin" id="lk">Área do organizador</a></footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let S=null,sel=new Set(),auth=sessionStorage.getItem('a')||'';
+const R=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const api=async(p,b)=>{
+  const r=await fetch('/api/'+p,{method:b?'POST':'GET',headers:{'content-type':'application/json','x-auth':auth},body:b?JSON.stringify(b):undefined});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Erro de conexão');return d};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---- Pix (BR Code estático) ---- */
+const tlv=(i,v)=>i+String(v.length).padStart(2,'0')+v;
+const crc=s=>{let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++)c=c&0x8000?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,'0')};
+const clean=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 ]/g,'').toUpperCase();
+function pixCode(c,amount){
+  const p=tlv('00','01')+tlv('26',tlv('00','br.gov.bcb.pix')+tlv('01',c.pixKey))+tlv('52','0000')+tlv('53','986')+tlv('54',amount.toFixed(2))+tlv('58','BR')+tlv('59',clean(c.pixName).slice(0,25))+tlv('60',clean(c.pixCity).slice(0,15))+tlv('62',tlv('05','RIFA'+Date.now().toString(36).toUpperCase()))+'6304';
+  return p+crc(p)}
+
+/* ---- Público ---- */
+function render(){
+  const c=S.config,taken=Object.keys(S.nums).length,paid=Object.values(S.nums).filter(r=>r.s==='x').length;
+  document.title=c.title;$('#t').textContent=c.title;$('#pz').textContent='Prêmio: '+c.prize;
+  $('#dt').textContent=c.drawDate?'Sorteio em '+c.drawDate:'';$('#pr').textContent=R(c.price)+' por número';
+  $('#bar').style.width=(taken/c.total*100)+'%';$('#sold').textContent=`${taken} de ${c.total} números reservados · ${paid} pagos`;
+  const w=$('#win');w.hidden=!S.winner;
+  if(S.winner)w.innerHTML=`Número sorteado<b>${S.winner.n} · ${esc(S.winner.name)}</b>`;
+  $('#buy').hidden=!!S.winner;
+  $('#grid').innerHTML=Array.from({length:c.total},(_,i)=>{const n=i+1,r=S.nums[n];
+    const k=r?r.s:sel.has(n)?'sel':'';
+    return `<button class="n ${k}" data-n="${n}" ${r?'disabled':''} ${r?`title="${esc(r.name)}"`:''} aria-pressed="${sel.has(n)}">${String(n).padStart(String(c.total).length,'0')}</button>`}).join('');
+  upd()}
+function upd(){
+  const c=S.config,k=sel.size;
+  $('#sum').textContent=k?`${k} número${k>1?'s':''}: ${[...sel].sort((a,b)=>a-b).join(', ')} — ${R(k*c.price)}`:'Nenhum número selecionado';
+  $('#go').disabled=!k}
+$('#grid').onclick=e=>{const b=e.target.closest('.n');if(!b||b.disabled)return;const n=+b.dataset.n;
+  sel.has(n)?sel.delete(n):sel.add(n);b.classList.toggle('sel');b.setAttribute('aria-pressed',sel.has(n));upd()};
+$('#go').onclick=async()=>{
+  const name=$('#nm').value.trim();$('#err').textContent='';
+  if(name.length<2){$('#err').textContent='Digite seu nome para reservar.';$('#nm').focus();return}
+  $('#go').disabled=true;
+  try{
+    const nums=[...sel].sort((a,b)=>a-b);
+    await api('reserve',{numbers:nums,name});
+    const amount=nums.length*S.config.price,code=pixCode(S.config,amount);
+    $('#pxi').innerHTML=`${esc(name)}, você reservou o(s) número(s) <b>${nums.join(', ')}</b>. Valor: <b>${R(amount)}</b>`;
+    $('#qr').innerHTML='';new QRCode($('#qr'),{text:code,width:200,height:200});
+    $('#code').value=code;$('#hold').textContent=S.config.hold;
+    $('#pixbox').hidden=false;$('#pixbox').scrollIntoView({behavior:'smooth'});
+    sel.clear();
+  }catch(e){$('#err').textContent=e.message}
+  await load()};
+$('#cp').onclick=async()=>{$('#code').select();try{await navigator.clipboard.writeText($('#code').value)}catch{document.execCommand('copy')}$('#cp').textContent='Código copiado!'};
+
+/* ---- Organizador ---- */
+const F=['title','prize','price','total','hold','drawDate','pixKey','pixName','pixCity'];
+function renderAdmin(){
+  const c=S.config;F.forEach(f=>$('#c_'+f).value=c[f]);
+  const rows=Object.entries(S.nums).sort((a,b)=>a[0]-b[0]);
+  $('#list').innerHTML=rows.length?rows.map(([n,r])=>`<div class="item"><span class="num">${n}</span><span>${esc(r.name)}</span>
+    <span class="tag ${r.s}">${r.s==='x'?'Pago':'Aguardando'}</span>
+    ${r.s==='p'?`<button class="s g" data-a="x" data-n="${n}">Confirmar pagamento</button>`:''}
+    <button class="s r" data-a="f" data-n="${n}">Liberar</button></div>`).join(''):'<p>Nenhum número reservado ainda.</p>'}
+$('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  await api('mark',{numbers:[b.dataset.n],status:b.dataset.a});await load()};
+$('#in').onclick=async()=>{auth=btoa($('#us').value+':'+$('#pw').value);$('#lerr').textContent='';
+  try{await api('login',{});sessionStorage.setItem('a',auth);await load()}catch(e){auth='';$('#lerr').textContent=e.message}};
+$('#sv').onclick=async()=>{const b={};F.forEach(f=>b[f]=$('#c_'+f).value);
+  try{await api('config',b);$('#cmsg').style.color='var(--grn)';$('#cmsg').textContent='Configuração salva.';await load()}
+  catch(e){$('#cmsg').style.color='var(--red)';$('#cmsg').textContent=e.message}};
+$('#dr').onclick=async()=>{if(!confirm('Sortear agora entre os números pagos?'))return;
+  try{const d=await api('draw',{});alert(`Sorteado: ${d.winner.n} — ${d.winner.name}`);await load()}catch(e){alert(e.message)}};
+$('#rs').onclick=async()=>{if(!confirm('Apagar todos os números e o resultado do sorteio?'))return;await api('reset',{});await load()};
+$('#out').onclick=()=>{sessionStorage.removeItem('a');auth='';location.hash='';location.reload()};
+
+/* ---- Roteamento ---- */
+function route(){const a=location.hash==='#admin';$('#pub').hidden=a;$('#adm').hidden=!a;$('#lk').hidden=a;
+  if(a&&S){$('#login').hidden=S.admin;$('#panel').hidden=!S.admin;if(S.admin)renderAdmin()}}
+async function load(){try{S=await api('state');if(!S.admin&&auth){auth='';sessionStorage.removeItem('a')}render();route()}
+  catch(e){$('#t').textContent='Não foi possível carregar a rifa'}}
+addEventListener('hashchange',route);load();setInterval(()=>{if(!document.hidden&&location.hash!=='#admin')load()},20000);
+</script>
+</body>
+</html>
